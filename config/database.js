@@ -1,7 +1,29 @@
 const parse = require('pg-connection-string').parse;
 
 module.exports = ({ env }) => {
-  const { host, port, database, user, password } = parse(env("DATABASE_URL"));
+
+  if(env('NODE_ENV') === 'production') {
+    const config = parse(process.env.DATABASE_URL)
+    return {
+      defaultConnection : 'default',
+      connection: {
+        default: {
+          connector: 'bookshelf',
+          settings : {
+            client: 'postgres',
+            host: config.host,
+            posrt: config.port,
+            database: config.database,
+            username: config.user,
+            password: config.password
+          },
+          options: {
+            ssl: false
+          }
+        }
+      }
+    }
+  }
 
   return{
     defaultConnection: 'default',
